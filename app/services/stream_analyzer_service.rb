@@ -38,19 +38,21 @@ class StreamAnalyzerService
     @n = @n + 1
     puts 'thread 1'
     next_frame = frame_storage_service.next_frame
+    found_faces = []
     #if next_frame.present?
-      #frames = @image_analyzer_service.frames(blob: next_frame)
-       frames = @image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/5.png')
-       frames = @image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/6.jpg') if @n%2 == 0
-      frames.each do |frame|
-        descriptors.each do |descriptor|
-          person_is_found = FaceSDK::compare_faces_by_descriptor(frame['Descriptor'], descriptor.descriptor_values)
-            puts 'comparison ' + person_is_found.to_s
-            puts 'face is found'  if person_is_found > @compare_params[:threshold99]
-            puts 'face not found' if person_is_found < @compare_params[:threshold99]
-        end
+    #frames = @image_analyzer_service.frames(blob: next_frame)
+    frames = @image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/5.png')
+    frames = @image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/6.jpg') if @n % 2 == 0
+    frames.each do |frame|
+      descriptors.each do |descriptor|
+        comparison_result = FaceSDK::compare_faces_by_descriptor(frame['Descriptor'], descriptor.descriptor_values)
+        person_is_found = comparison_result > @compare_params[:threshold99]
+        found_faces << descriptor.person
+        puts 'comparison ' + comparison_result.to_s
+        puts 'face is found' if person_is_found
       end
+    end
     #end
-
+    { image: next_frame, employees: found_faces }
   end
 end
