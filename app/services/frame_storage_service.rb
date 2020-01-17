@@ -1,4 +1,3 @@
-# Descriptor
 class FrameStorageService
   def initialize
     @frames = []
