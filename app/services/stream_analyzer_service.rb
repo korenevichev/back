@@ -9,7 +9,7 @@ class StreamAnalyzerService
 
   def initialize(stream_url)
     @stream_url = stream_url
-    @video_capture = FaceSDK::VideoCapture.new(@stream_url)
+    @video_capture = VideoCapture.new(@stream_url)
     @frame_storage_service = FrameStorageService.new
     @image_analyzer_service = ImageAnalyzerService.new
     @compare_params = FaceSDK::default_comparison_params
@@ -46,7 +46,7 @@ class StreamAnalyzerService
           person_is_found = FaceSDK::compare_faces_by_descriptor(frame['Descriptor'], descriptor.descriptor_values)
             puts 'comparison ' + person_is_found.to_s
             puts 'face is found'  if person_is_found > @compare_params[:threshold99]
-            puts 'face not found' if person_is_found < 0.75
+            puts 'face not found' if person_is_found < @compare_params[:threshold99]
         end
       end
     #end
