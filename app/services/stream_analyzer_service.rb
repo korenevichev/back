@@ -18,6 +18,7 @@ class StreamAnalyzerService
 
   def read_frame
     return unless @video_capture.opened
+
     @video_capture.read_frame
   end
 
@@ -26,7 +27,7 @@ class StreamAnalyzerService
   end
 
   def store_frames
-    while video_stream_running? do
+    while video_stream_running?
       puts 'thread 2'
       frame_storage_service.store(read_frame)
       sleep 1
@@ -50,5 +51,6 @@ class StreamAnalyzerService
         end
       end
     #end
+
   end
 end
