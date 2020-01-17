@@ -27,20 +27,24 @@ class StreamsController < ApplicationController
     # descriptor1 = Descriptor.first.descriptor_values
     # descriptor2 = Descriptor.last.descriptor_values
     # FaceSDK::CompareFacesByDescriptor(descriptor2, descriptor2, FaceSDK::GetDefaultComparisonParameters())
-    descriptors = Descriptor.all
-    t = Thread.new do
-      loop do
-        stream_analyzer_service.start_frames_analyzing(descriptors)
-        sleep 1
-      end
-    end
 
-    trap("INT") do
-      t.exit
-      exit
-    end
+    # descriptors = Descriptor.all
+    # ActiveRecord::Base.establish_connection
+    # t = Thread.new do
+    #   loop do
+    #     res = stream_analyzer_service.start_frames_analyzing(descriptors)
+    #     puts 'here'
+    #     puts res
+    #     sleep 1
+    #   end
+    # end
+    #
+    # trap("INT") do
+    #   t.exit
+    #   exit
+    # end
 
-    stream_analyzer_service.store_frames
+    #stream_analyzer_service.store_frames
 
 
     # fr1 = image_analyzer_service.frames('/Users/lizavetakarenevich/Downloads/4.png')
@@ -50,33 +54,32 @@ class StreamsController < ApplicationController
     #image_analyzer_service.add_employee('/Users/lizavetakarenevich/Downloads/6.jpg', 'Angelina', 'Jolie', 'Actress')
 
 
-    # EM.run {
-    #   EM::WebSocket.run(:host => "127.0.0.1", :port => 8080) do |ws|
-    #     ws.onopen { |handshake|
-    #       files = ['/Users/lizavetakarenevich/Downloads/1.jpeg', '/Users/lizavetakarenevich/Downloads/2.jpg']
-    #       files.each do |file|
-    #         f = File.binread(file).to_s
-    #         data = {employees: [], image: f}
-    #         ws.send data.to_json
-    #       end
-    #       puts "WebSocket connection open"
-    #
-    #       # Access properties on the EM::WebSocket::Handshake object, e.g.
-    #       # path, query_string, origin, headers
-    #
-    #       # Publish message to the client
-    #
-    #       # ws.send "Hello Client, you connected to #{handshake.path}"
-    #     }
-    #
-    #     ws.onclose { puts "Connection closed" }
-    #
-    #     ws.onmessage { |msg|
-    #       puts "Recieved message: #{msg}"
-    #       ws.send "Pong: #{msg}"
-    #     }
-    #   end
-    # }
+  #   EM.run {
+  #     EM::WebSocket.run(:host => "127.0.0.1", :port => 8080) do |ws|
+  #       ws.onopen { |handshake|
+  #         file = '/Users/lizavetakarenevich/Downloads/2.jpg'
+  #         f = File.binread(file).to_s
+  #         i = Base64.encode64(f)
+  #         data = { employees: [{name: 'ttt', surname: 'lolo', job_position: 'xyi'}], image: i }
+  #         ws.send data.to_json
+  #         puts "WebSocket connection open"
+  #
+  #         # Access properties on the EM::WebSocket::Handshake object, e.g.
+  #         # path, query_string, origin, headers
+  #
+  #         # Publish message to the client
+  #
+  #         ws.send "Hello Client, you connected to #{handshake.path}"
+  #       }
+  #
+  #       ws.onclose { puts "Connection closed" }
+  #
+  #       ws.onmessage { |msg|
+  #         puts "Recieved message: #{msg}"
+  #         ws.send "Pong: #{msg}"
+  #       }
+  #     end
+  #   }
   end
 
   def identify;
