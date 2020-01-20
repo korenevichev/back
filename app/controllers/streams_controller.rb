@@ -6,31 +6,11 @@ require 'mock/mock_stream_service'
 
 class StreamsController < ApplicationController
   include ActionController::Live
-  PER_PAGE = 10
 
   def index
     stream_url = 'rtsp://admin:1qaz!QAZ@192.168.112.42:554/ch1/main'
-    stream_analyzer_service = StreamAnalyzerService.new(stream_url)
-    image_analyzer_service = ImageAnalyzerService.new
-
     videoCapture = FaceSDK::VideoCapture.new(stream_url)
-
     blob = videoCapture.read_frame
-
-
-    # frames = image_analyzer_service.frames(blob)
-    # fr1 = image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/6.jpg')
-    # fr2 = image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/7.jpg')
-    # d1 = fr1.first['Descriptor']
-    # d2 = fr2.first['Descriptor']
-    # binding.pry
-    #FaceSDK::CompareFacesByDescriptor(d1, d2, FaceSDK::GetDefaultComparisonParameters())
-    # descriptor1 = Descriptor.first.descriptor_values
-    # descriptor2 = Descriptor.last.descriptor_values
-    # FaceSDK::CompareFacesByDescriptor(descriptor2, descriptor2, FaceSDK::GetDefaultComparisonParameters())
-
-    descriptors = Descriptor.all
-    #
 
     # Thread.new do
     #   loop do
@@ -70,11 +50,11 @@ class StreamsController < ApplicationController
     stream_analyzer_service.store_frames
 
     response_frame = stream_analyzer_service.start_frames_analyzing(descriptors)
-    puts
     i = Base64.encode64(response_frame[:image])
 
     sse = SSE.new(response.stream, retry: 300)
     sse.write({ employees: response_frame[:employees], image: i })
+
   ensure
     sse.close
   end
