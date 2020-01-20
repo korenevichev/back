@@ -35,9 +35,9 @@ module FaceSDK
 
   class VideoCapture
     def initialize(path)
-      @path = path
-      command = "curl -s -X PUT -d url='rtsp://admin:1qaz!#{@path}' #{BASE_URL}/video_capture"
-      IO.popen(command, "r+")
+      # @path = path
+      # command = "curl -s -X PUT -d url='rtsp://admin:1qaz!#{@path}' #{BASE_URL}/video_capture"
+      # IO.popen(command, "r+")
     end
 
     def opened
@@ -45,8 +45,8 @@ module FaceSDK
     end
 
     def read_frame
-      response = JSON.parse(HTTParty.get(BASE_URL + "/video_capture"))
-      Base64.decode64(response['frame'])
+      response = JSON.parse(HTTParty.get('http://192.168.43.2:8080').body)['data'][0]
+      Base64.decode64(response)
     end
   end
 
