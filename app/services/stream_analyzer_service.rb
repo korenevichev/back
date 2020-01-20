@@ -13,7 +13,6 @@ class StreamAnalyzerService
     @frame_storage_service = FrameStorageService.new
     @image_analyzer_service = ImageAnalyzerService.new
     @compare_params = FaceSDK::default_comparison_params
-    @n = 0
   end
 
   def read_frame
@@ -27,32 +26,29 @@ class StreamAnalyzerService
   end
 
   def store_frames
-    while video_stream_running?
-      puts 'thread 2'
-      frame_storage_service.store(read_frame)
-      sleep 1
-    end
+    puts 'thread 2'
+    frame_storage_service.store(read_frame)
+    sleep 1
   end
 
   def start_frames_analyzing(descriptors)
-    @n = @n + 1
-    puts 'thread 1'
     next_frame = frame_storage_service.next_frame
     found_faces = []
+    n = rand(8)
     #if next_frame.present?
+    frane = File.binread('/Users/lizavetakarenevich/Downloads/5.png')
+    frane = File.binread('/Users/lizavetakarenevich/Downloads/6.jpg') if n % 2 == 0
     #frames = @image_analyzer_service.frames(blob: next_frame)
     frames = @image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/5.png')
-    frames = @image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/6.jpg') if @n % 2 == 0
+    frames = @image_analyzer_service.frames(path: '/Users/lizavetakarenevich/Downloads/6.jpg') if n % 2 == 0
     frames.each do |frame|
       descriptors.each do |descriptor|
         comparison_result = FaceSDK::compare_faces_by_descriptor(frame['Descriptor'], descriptor.descriptor_values)
         person_is_found = comparison_result > @compare_params[:threshold99]
-        found_faces << descriptor.person
-        puts 'comparison ' + comparison_result.to_s
-        puts 'face is found' if person_is_found
+        found_faces << descriptor.person if person_is_found
       end
     end
     #end
-    { image: next_frame, employees: found_faces }
+    { image: frane, employees: found_faces }
   end
 end

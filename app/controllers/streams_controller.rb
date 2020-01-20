@@ -5,6 +5,7 @@ require 'json'
 require 'mock/mock_stream_service'
 
 class StreamsController < ApplicationController
+  include ActionController::Live
   PER_PAGE = 10
 
   def index
@@ -29,58 +30,52 @@ class StreamsController < ApplicationController
     # FaceSDK::CompareFacesByDescriptor(descriptor2, descriptor2, FaceSDK::GetDefaultComparisonParameters())
 
     descriptors = Descriptor.all
-    Thread.new do
-      loop do
-        res = stream_analyzer_service.start_frames_analyzing(descriptors)
-        puts res
-        sleep 1
-      end
-    end
+    #
 
-    # trap("INT") do
-    #   t.exit
-    #   exit
+    # Thread.new do
+    #   loop do
+    #     EM.run {
+    #       EM::WebSocket.start(:host => "127.0.0.1", :port => 8080) do |ws|
+    #         ws.onopen {
+    #           EM.add_periodic_timer(1) {
+    #             ws.send 'hello'
+    #             # response_frame = stream_analyzer_service.start_frames_analyzing(descriptors)
+    #             # response_frame[:image] = Base64.encode64(response_frame[:image])
+    #             # ws.send data.to_json
+    #           }
+    #         }
+    #       end
+    #     }
+    #     sleep 1
+    #   end
     # end
 
-    Thread.new do
-      stream_analyzer_service.store_frames
+    trap("INT") do
+      t.exit
+      exit
     end
 
-    # fr1 = image_analyzer_service.frames('/Users/lizavetakarenevich/Downloads/4.png')
-    # fr2 = image_analyzer_service.frames('/Users/lizavetakarenevich/Downloads/5.png')
-    #image_analyzer_service.add_employee('/Users/lizavetakarenevich/Downloads/4.png', 'Oleg', 'Gubin', 'Head of Rnd')
-    #image_analyzer_service.add_employee('/Users/lizavetakarenevich/Downloads/5.png', 'Ksenia', 'Meshkova', 'Rnd Engineer')
-    #image_analyzer_service.add_employee('/Users/lizavetakarenevich/Downloads/6.jpg', 'Angelina', 'Jolie', 'Actress')
-
-
-    #   EM.run {
-    #     EM::WebSocket.run(:host => "127.0.0.1", :port => 8080) do |ws|
-    #       ws.onopen { |handshake|
-    #         file = '/Users/lizavetakarenevich/Downloads/2.jpg'
-    #         f = File.binread(file).to_s
-    #         i = Base64.encode64(f)
-    #         data = { employees: [{name: 'ttt', surname: 'lolo', job_position: 'xyi'}], image: i }
-    #         ws.send data.to_json
-    #         puts "WebSocket connection open"
-    #
-    #         # Access properties on the EM::WebSocket::Handshake object, e.g.
-    #         # path, query_string, origin, headers
-    #
-    #         # Publish message to the client
-    #
-    #         ws.send "Hello Client, you connected to #{handshake.path}"
-    #       }
-    #
-    #       ws.onclose { puts "Connection closed" }
-    #
-    #       ws.onmessage { |msg|
-    #         puts "Recieved message: #{msg}"
-    #         ws.send "Pong: #{msg}"
-    #       }
-    #     end
-    #   }
+    # Thread.new do
+    #   stream_analyzer_service.store_frames
+    # end
   end
 
-  def identify;
+  def identify
+    response.headers['Content-Type'] = 'text/event-stream'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    stream_url = 'rtsp://admin:1qaz!QAZ@192.168.112.42:554/ch1/main'
+    stream_analyzer_service = StreamAnalyzerService.new(stream_url)
+    descriptors = Descriptor.all
+
+    stream_analyzer_service.store_frames
+
+    response_frame = stream_analyzer_service.start_frames_analyzing(descriptors)
+    puts
+    i = Base64.encode64(response_frame[:image])
+
+    sse = SSE.new(response.stream, retry: 300)
+    sse.write({ employees: response_frame[:employees], image: i })
+  ensure
+    sse.close
   end
 end
