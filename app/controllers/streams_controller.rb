@@ -10,7 +10,7 @@ class StreamsController < ApplicationController
   def identify
     response.headers['Content-Type'] = 'text/event-stream'
     response.headers['Access-Control-Allow-Origin'] = '*'
-    stream_url = 'rtsp://admin:1qaz!QAZ@192.168.112.42:554/ch1/main'
+    stream_url = 'rtsp://admin:1qaz!QAZ@192.168.112.70:554/ch1/main'
     stream_analyzer_service = StreamAnalyzerService.new(stream_url)
     descriptors = Descriptor.all
 
@@ -22,6 +22,6 @@ class StreamsController < ApplicationController
     sse = SSE.new(response.stream, retry: 300)
     sse.write({ employees: response_frame[:employees], image: i })
   ensure
-    sse.close
+    sse.close if sse
   end
 end

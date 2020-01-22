@@ -26,6 +26,8 @@ class StreamAnalyzerService
   end
 
   def store_frames
+    frame = read_frame
+    raise StandardError, 'Empty frame' unless frame.present?
     frame_storage_service.store(read_frame)
   end
 
