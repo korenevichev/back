@@ -34,7 +34,6 @@ class StreamAnalyzerService
         end
       end
     end
-    puts ">>>>111 #{found_faces.first.name}" if found_faces.size > 0
     { image: next_frame, employees: found_faces }
   end
 end
