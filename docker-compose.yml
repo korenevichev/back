@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+  web:
+    build: .
+    command: bundle exec rails s -p 4444 -b '0.0.0.0'
+    volumes:
+    - .:/myapp
+    ports:
+    - "4444:4444"
+    depends_on:
+    - db
+    environment:
+    - LD_LIBRARY_PATH=/usr/local/cuda-10.1/compat/:/files
