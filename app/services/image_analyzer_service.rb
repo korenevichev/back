@@ -1,15 +1,27 @@
 # frozen_string_literal: true
 
 require '/files/libfacesdk_ruby'
+require 'singleton'
 
 class ImageAnalyzerService
+  include Singleton
+
   DEFAULT_INPUT = {
     pThresh: 0.9,
     rThresh: 0.9,
     oThresh: 0.7
   }
 
-  def initialize(config)
+  DEFAULT_CONFIG = {
+    FaceDetectionModelsFolder: '/facesdk/graphs/',
+    FaceRecognitionModelsFolder: '/facesdk/graphs/',
+    UseGPU: true,
+    LogFilePath: '',
+    ResetCount: 0
+  }
+
+
+  def initialize(config = DEFAULT_CONFIG)
     @image_analyzer = FaceSDK::ImageAnalyzer.new(config)
   end
 
